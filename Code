@@ -1,0 +1,84 @@
+#define FASTLED_INTERRUPT_RETRY_COUNT 0
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+
+/******************  LIBRARY SECTION *************************************/
+
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <FastLED.h>
+
+
+#define NUM_LEDS 100
+
+CRGB leds[NUM_LEDS];
+
+
+/* Pins  */
+#define DATA_PIN 4 //D2 on board 
+
+int brightness = 250; //range from 0 to 250 
+
+/* Network settings */
+const char* ssid = "xxxxxxx"; // SSID - your WiFi's name 
+const char* password = "xxxxxxxxx"; // Password 
+const char* device_name = "led"; // you can access controller by http://led.local/
+IPAddress ip(xxxxx);  // static IP adress of device 
+IPAddress gateway(xxxxxx); // Gatway
+IPAddress subnet(255,255,255,0); // Network mask
+MDNSResponder mdns;
+ESP8266WebServer server(80);
+
+
+
+
+/* IR Codes*/
+
+
+void setup(void) {
+
+  Serial.begin(115200);
+  FastLED.addLeds<WS2811, DATA_PIN, BRG>(leds, NUM_LEDS);
+  
+  pinMode(LED_BUILTIN, OUTPUT); // LED als Output definieren
+  digitalWrite(LED_BUILTIN, HIGH); // Ausschalten
+  
+  
+  
+  WiFi.begin(ssid, password);
+  WiFi.config(ip, gateway, subnet);
+  Serial.println("");
+
+  /* Wait for WiFi connection */
+  while ((WiFi.status() != WL_CONNECTED) && (counter < 100)) {
+    delay(500);
+    Serial.print(".");
+    counter++;
+  }
+
+  /* Show some important information on Serial Monitor */
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+}
+
+void loop(void) {
+
+for(int i=0; i<NUM_LEDS;i++){
+        leds[i] = CRGB::Red;
+        leds[i+1].setRGB(50,0,0);  
+        FastLED.show();
+        FastLED.delay(50);
+      }
+      for(int i=0; i<NUM_LEDS;i++){
+        leds[i] = CRGB::Black;
+        leds[i+1].setRGB(180,0,0);
+        FastLED.show();
+        FastLED.delay(50); 
+      }
+    }
+  
+}
